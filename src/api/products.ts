@@ -7,13 +7,8 @@ export interface ProductResponse {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  try {
-    const response = await axiosInstance.get('/categories')
-    return response.data
-  } catch (e) {
-    console.error(e)
-    throw e
-  }
+  const response = await axiosInstance.get('/categories')
+  return response.data
 }
 
 export async function getAllProducts(params?: {
@@ -23,42 +18,33 @@ export async function getAllProducts(params?: {
   _order?: 'asc' | 'desc'
   categoryId?: string
   q?: string
+  featured?: boolean
 }): Promise<Product[]> {
-  try {
-    const response = await axiosInstance.get('/products', { params })
-    return response.data
-  } catch (e) {
-    console.error(e)
-    throw e
-  }
+  const response = await axiosInstance.get('/products', { params })
+  return response.data
 }
 
 export async function getProductById(id: string): Promise<Product> {
-  try {
-    const response = await axiosInstance.get(`/products/${id}`)
-    return response.data
-  } catch (e) {
-    console.error('Товар не найден', e)
-    throw e
-  }
+  const response = await axiosInstance.get(`/products/${id}`)
+  return response.data
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
-  try {
-    const response = await axiosInstance.get('/products?featured=true')
-    return response.data
-  } catch (e) {
-    console.error(e)
-    throw e
-  }
+  const response = await axiosInstance.get('/products', {
+    params: {
+      featured: true,
+    },
+  })
+
+  return response.data
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-  try {
-    const response = await axiosInstance.get(`/products?q=${query}`)
-    return response.data
-  } catch (e) {
-    console.error(e)
-    throw e
-  }
+  const response = await axiosInstance.get('/products', {
+    params: {
+      q: query,
+    },
+  })
+
+  return response.data
 }
