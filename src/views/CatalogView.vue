@@ -50,8 +50,8 @@ onMounted(async () =>{
                 <div class="filter-group">
                     <h3>Категории</h3>
                     <label v-for="category in productStore.categories" :key="category.id">
-                        <input 
-                        type="checkbox" 
+                        <input
+                        type="checkbox"
                         :value="category.id"
                         v-model="selectedCategories"
                         />
@@ -61,9 +61,9 @@ onMounted(async () =>{
                 <div class="filter-group">
                     <h3>Цена</h3>
                     <div class="price-inputs">
-                        <AppInput v-model="priceRange[0]" placeholder="От" type="number" />  
+                        <AppInput v-model="priceRange[0]" label="От" placeholder="От" type="number" />
 
-                        <AppInput v-model="priceRange[1]" placeholder="До" type="number" /> 
+                        <AppInput v-model="priceRange[1]" label="До" placeholder="До" type="number" />
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@ onMounted(async () =>{
                         <option value="newest">Сначала новые</option>
                         <option value="name-abc">А-Я</option>
                         <option value="name-zba">Я-А</option>
-                        
+
                     </select>
                     <span>Кол-во: {{ filteredProducts.length }}</span>
                 </div>

@@ -1,16 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { sql } from './_db'
+import { sql } from '../_db'
 
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
+  const id = String(req.query.id)
+
+  if (!id) {
+    return res.status(400).json({ error: 'Invalid product id' })
+  }
+
   try {
     if (req.method !== 'GET') {
       return res.status(405).json({ error: 'Method not allowed' })
     }
 
-    const products = await sql`
+    const [product] = await sql`
       SELECT
         id,
         name,
@@ -30,10 +36,14 @@ export default async function handler(
         specifications,
         created_at AS "createdAt"
       FROM products
-      ORDER BY created_at DESC
+      WHERE id = ${id}
     `
 
-    return res.status(200).json(products)
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' })
+    }
+
+    return res.status(200).json(product)
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: 'Internal server error' })

@@ -70,7 +70,7 @@ const total = computed(() => {
         <footer class="cart-drawer__footer">
           <div class="cart-drawer__total">
             <span>Итого:</span>
-            <PriceDisplay :price="total" currency="₽" size="lg" />
+            <PriceDisplay :price="total" currency="₽" :old-price="null" size="lg" />
           </div>
 
           <AppButton variant="primary" block @click="emit('checkout')">Оформить заказ </AppButton>
