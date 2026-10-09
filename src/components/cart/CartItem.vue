@@ -37,7 +37,7 @@ const oldPrice = computed(()=>{
         <AppButton
             variant="secondary"
             size="sm"
-            @click="emit('update-quantity', props.item.id, props.item.quantity - 1)"
+            @click="emit('update-quantity', props.item.product.id, props.item.quantity - 1)"
             :disabled="props.item.quantity <= 1"
         >
             -
@@ -46,14 +46,14 @@ const oldPrice = computed(()=>{
         <AppButton
             variant="secondary"
             size="sm"
-            @click="emit('update-quantity', props.item.id, props.item.quantity + 1)"
+            @click="emit('update-quantity', props.item.product.id, props.item.quantity + 1)"
         >
             +
         </AppButton>
         <AppButton
             variant="danger"
             size="sm"
-            @click="emit('remove-item', props.item.id)"
+            @click="emit('remove-item', props.item.product.id)"
         >
             Удалить
         </AppButton>
