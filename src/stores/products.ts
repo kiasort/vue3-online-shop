@@ -40,6 +40,8 @@ export const useProductStore = defineStore('products', () => {
       arrCopy = arrCopy.filter((product) => product.compareAtPrice !== null)
     }
 
+    arrCopy = arrCopy.filter((product) => product.price >= filters.value.priceRange[0] && product.price <= filters.value.priceRange[1])
+
     if (filters.value.rating > 0) {
       arrCopy = arrCopy.filter((product) => product.rating >= filters.value.rating)
     }
@@ -102,6 +104,14 @@ export const useProductStore = defineStore('products', () => {
 
   const setCategoryFilter = function (ids: string[]) {
     filters.value.categories = ids
+  }
+
+  const setPriceRange = function (range: [number, number]) {
+    filters.value.priceRange = range
+  }
+
+  const setRatingFilter = function (rating: number) {
+    filters.value.rating = rating
   }
 
   const setSortBy = function (option: SortOption) {
