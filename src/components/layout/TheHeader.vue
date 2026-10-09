@@ -9,10 +9,6 @@ const props = withDefaults(defineProps<{
     cartCount: 0
 })
 
-const emit = defineEmits<{
-    'toggle-cart': []
-}>()
-
 const navLinks = [
     { to: '/', label: 'Главная' },
     { to: '/catalog', label: 'Каталог' },
@@ -39,10 +35,10 @@ const isActive = (path: string) => {
             </nav>
 
             <div class="the-header__actions">
-                <button class="the-header__cart-btn" @click="emit('toggle-cart')">
+                <RouterLink to="/cart" class="the-header__cart-btn" aria-label="Открыть корзину">
                     <span>🛒</span>
                     <span v-if="props.cartCount > 0" class="the-header__badge">{{ props.cartCount }}</span>
-                </button>
+                </RouterLink>
             </div>
         </div>
     </header>
