@@ -1,11 +1,21 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sql } from '../_db.js'
 
+function getSessionId(req: VercelRequest): string {
+  const value = req.headers['x-cart-session-id']
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = typeof req.query.id === 'string' ? req.query.id : ''
+  const sessionId = getSessionId(req)
 
   if (!id) {
     return res.status(400).json({ error: 'Invalid cart item id' })
+  }
+
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Cart session is required' })
   }
 
   try {
@@ -19,8 +29,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const [updated] = await sql`
         UPDATE cart
         SET quantity = ${quantity}
-        WHERE id = ${id}
-        RETURNING id, product_id AS "productId", quantity
+        WHERE id = ${id} AND session_id = ${sessionId}
+        RETURNING id
       `
 
       if (!updated) {
@@ -50,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           p.created_at AS "createdAt"
         FROM cart c
         JOIN products p ON p.id = c.product_id
-        WHERE c.id = ${id}
+        WHERE c.id = ${id} AND c.session_id = ${sessionId}
       `
 
       return res.status(200).json({
@@ -79,7 +89,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
-      const [deleted] = await sql`DELETE FROM cart WHERE id = ${id} RETURNING id`
+      const [deleted] = await sql`
+        DELETE FROM cart
+        WHERE id = ${id} AND session_id = ${sessionId}
+        RETURNING id
+      `
       if (!deleted) {
         return res.status(404).json({ error: 'Cart item not found' })
       }
