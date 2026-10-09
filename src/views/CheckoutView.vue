@@ -1,32 +1,30 @@
 <script setup lang="ts">
 import AppInput from '../components/common/AppInput.vue';
 import AppButton from '../components/common/AppButton.vue';
-import { reactive, ref, onMounted, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import {useCartStore} from '../stores/cart';
-import {useRouter} from 'vue-router'
+import axiosInstance from '../api/axiosInstance'
 
 const cartStore = useCartStore();
-
-const router = useRouter();
 
 
 
 async function submitOrder() {
-  try{
+  if (cartStore.items.length === 0) return
 
-    console.log('Данные:', formData)
-    console.log('Товары:', cartStore.items)
-    console.log('Сумма:', total.value)
-
-    isSubmitted.value = true;
-
+  try {
+    await axiosInstance.post('/orders', {
+      customer: { ...formData },
+      items: cartStore.items,
+      total: total.value,
+      status: 'pending',
+    })
     await cartStore.clearCart()
-  }catch(e){
-    console.error(e)
+    isSubmitted.value = true
+  } catch (e) {
+    console.error('Не удалось оформить заказ', e)
   }
-
-
-};
+}
 
 
 
@@ -57,14 +55,14 @@ const total = computed(() => subtotal.value + shippingCost.value);
         <form @submit.prevent="submitOrder" v-if="!isSubmitted">
 
           <section class="purchaser-data__contacts">
-            <AppInput v-model="formData.name" label="Имя" name="name" type="text" placeholder="Введите ваше имя" />
-            <AppInput v-model="formData.email" label="Email" name="email" type="email" placeholder="Введите ваш email" />
-            <AppInput v-model="formData.phone" label="Телефон" name="phone" type="text" placeholder="Введите ваш телефон" />
+            <AppInput v-model="formData.name" label="Имя" name="name" type="text" placeholder="Введите ваше имя" required />
+            <AppInput v-model="formData.email" label="Email" name="email" type="email" placeholder="Введите ваш email" required />
+            <AppInput v-model="formData.phone" label="Телефон" name="phone" type="text" placeholder="Введите ваш телефон" required />
           </section>
 
           <section class="purchaser-data__adress">
-            <AppInput v-model="formData.city" label="Город" name="city" type="text" placeholder="Введите ваш город" />
-            <AppInput v-model="formData.address" label="Улица" name="address" type="text" placeholder="Введите вашу улицу" />
+            <AppInput v-model="formData.city" label="Город" name="city" type="text" placeholder="Введите ваш город" required />
+            <AppInput v-model="formData.address" label="Улица" name="address" type="text" placeholder="Введите вашу улицу" required />
             <AppInput v-model="formData.zip" label="Индекс" name="zip" type="text" placeholder="Введите ваш индекс" />
           </section>
 

@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProductStore } from '../stores/products'
+import { useCartStore } from '../stores/cart'
 import ProductGrid from '../components/product/ProductGrid.vue'
 import AppButton from '../components/common/AppButton.vue'
 import AppInput from '../components/common/AppInput.vue'
-import type {Product, Category, SortOption, FilterState} from '../types/product'
+import type { Product, SortOption } from '../types/product'
 
 const productStore = useProductStore()
+const cartStore = useCartStore()
+
+const addToCart = (product: Product) => cartStore.addToCart({ product })
 const sortBy = ref('newest')
 const selectedCategories = ref<string[]>([])
 const priceRange = ref<[number, number]>([0,999999])
@@ -17,14 +21,18 @@ const filteredProducts = computed(()=>{
 })
 
 const applyFilters = function(){
+    const minPrice = Math.max(0, Number(priceRange.value[0]) || 0)
+    const maxPrice = Math.max(minPrice, Number(priceRange.value[1]) || 999999)
     productStore.setCategoryFilter(selectedCategories.value)
+    productStore.setPriceRange([minPrice, maxPrice])
+    productStore.setRatingFilter(Number(rating.value) || 0)
     productStore.setSortBy(sortBy.value as SortOption)
 }
 
 const resetFilters = function (){
     productStore.resetFilters()
     selectedCategories.value = []
-    priceRange.value = [0, 99999]
+    priceRange.value = [0, 999999]
     rating.value = 0
     sortBy.value = 'newest'
 }
@@ -42,7 +50,7 @@ onMounted(async () =>{
     <div class="catalog">
         <div class="catalog__header">
             <h1>Каталог</h1>
-            <p>Найдено: {{ productStore.products.length }} товаров</p>
+            <p>Найдено: {{ filteredProducts.length }} товаров</p>
         </div>
 
         <div class="catalog__content">
@@ -61,21 +69,25 @@ onMounted(async () =>{
                 <div class="filter-group">
                     <h3>Цена</h3>
                     <div class="price-inputs">
-                        <AppInput v-model="priceRange[0]" label="От" placeholder="От" type="number" />
+                        <AppInput v-model.number="priceRange[0]" label="От" placeholder="От" type="number" />
 
-                        <AppInput v-model="priceRange[1]" label="До" placeholder="До" type="number" />
+                        <AppInput v-model.number="priceRange[1]" label="До" placeholder="До" type="number" />
                     </div>
                 </div>
 
                 <div class="filter-group">
                     <h3>Рейтинг</h3>
-                    <select v-model="rating">
-                        <option value = "4.5">От 4,5 и выше</option>
+                    <select v-model.number="rating">
+                        <option :value="0">Любой рейтинг</option> 
+                        <option :value="4.5">От 4,5 и выше</option>
                     </select>
 
                 </div>
 
-                <AppButton @click="applyFilters">Применить</AppButton>
+                <div class="filter-actions">
+                    <AppButton @click="applyFilters">Применить</AppButton>
+                    <AppButton variant="secondary" @click="resetFilters">Сбросить</AppButton>
+                </div>
             </aside>
 
             <main class="catalog__main">
@@ -92,7 +104,7 @@ onMounted(async () =>{
                     </select>
                     <span>Кол-во: {{ filteredProducts.length }}</span>
                 </div>
-                <ProductGrid :products="filteredProducts" :loading="productStore.loading"/>
+                <ProductGrid :products="filteredProducts" :loading="productStore.loading" @add-to-cart="addToCart" />
             </main>
         </div>
 
@@ -138,6 +150,12 @@ onMounted(async () =>{
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .filter-group:last-of-type {
