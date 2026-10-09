@@ -2,6 +2,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { randomUUID } from 'node:crypto'
 import { sql } from './_db.js'
 
+function getSessionId(req: VercelRequest): string {
+  const value = req.headers['x-cart-session-id']
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 function mapCartRow(row: any) {
   return {
     id: row.id,
@@ -28,7 +33,7 @@ function mapCartRow(row: any) {
   }
 }
 
-async function getCartRows() {
+async function getCartRows(sessionId: string) {
   return sql`
     SELECT
       c.id,
@@ -52,14 +57,20 @@ async function getCartRows() {
       p.created_at AS "createdAt"
     FROM cart c
     JOIN products p ON p.id = c.product_id
+    WHERE c.session_id = ${sessionId}
     ORDER BY c.id
   `
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const sessionId = getSessionId(req)
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Cart session is required' })
+  }
+
   try {
     if (req.method === 'GET') {
-      const rows = await getCartRows()
+      const rows = await getCartRows(sessionId)
       return res.status(200).json(rows.map(mapCartRow))
     }
 
@@ -76,22 +87,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(404).json({ error: 'Product not found' })
       }
 
-      const [existing] = await sql`SELECT id, quantity FROM cart WHERE product_id = ${productId} LIMIT 1`
+      const [existing] = await sql`
+        SELECT id, quantity
+        FROM cart
+        WHERE product_id = ${productId} AND session_id = ${sessionId}
+        LIMIT 1
+      `
 
       if (existing) {
         await sql`
           UPDATE cart
           SET quantity = ${Number(existing.quantity) + quantity}
-          WHERE id = ${existing.id}
+          WHERE id = ${existing.id} AND session_id = ${sessionId}
         `
       } else {
         await sql`
-          INSERT INTO cart (id, product_id, quantity)
-          VALUES (${randomUUID()}, ${productId}, ${quantity})
+          INSERT INTO cart (id, product_id, quantity, session_id)
+          VALUES (${randomUUID()}, ${productId}, ${quantity}, ${sessionId})
         `
       }
 
-      const rows = await getCartRows()
+      const rows = await getCartRows(sessionId)
       const item = rows.find((row: any) => row.productId === productId)
       return res.status(200).json(mapCartRow(item))
     }
