@@ -130,7 +130,7 @@ onMounted(async () => {
 
       <section class="product-view__related" v-if="relatedProducts.length > 0">
         <h2>Related Products</h2>
-        <ProductGrid :products="relatedProducts" :columns="4" />
+        <ProductGrid :products="relatedProducts" :columns="4" @add-to-cart="(p) => cartStore.addToCart({ product: p })" />
       </section>
     </div>
   </section>
