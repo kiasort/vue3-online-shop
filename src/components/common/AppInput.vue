@@ -55,6 +55,7 @@ const inputClasses = computed(() => [
         :value="props.modelValue"
         :placeholder = "props.placeholder"
         :disabled="props.disabled"
+        :required="props.required"
         :class="inputClasses"
         @input="handleInput"
         @blur="handleBlur"
