@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProductStore } from '../stores/products'
 import { useCartStore } from '../stores/cart'
 import ProductGrid from '../components/product/ProductGrid.vue'
 import AppButton from '../components/common/AppButton.vue'
 import AppInput from '../components/common/AppInput.vue'
-import type {Product, Category, SortOption, FilterState} from '../types/product'
+import type { Product, SortOption } from '../types/product'
 
 const productStore = useProductStore()
 const cartStore = useCartStore()
@@ -21,7 +21,11 @@ const filteredProducts = computed(()=>{
 })
 
 const applyFilters = function(){
+    const minPrice = Math.max(0, Number(priceRange.value[0]) || 0)
+    const maxPrice = Math.max(minPrice, Number(priceRange.value[1]) || 999999)
     productStore.setCategoryFilter(selectedCategories.value)
+    productStore.setPriceRange([minPrice, maxPrice])
+    productStore.setRatingFilter(Number(rating.value) || 0)
     productStore.setSortBy(sortBy.value as SortOption)
 }
 
@@ -65,9 +69,9 @@ onMounted(async () =>{
                 <div class="filter-group">
                     <h3>Цена</h3>
                     <div class="price-inputs">
-                        <AppInput v-model="priceRange[0]" label="От" placeholder="От" type="number" />
+                        <AppInput v-model.number="priceRange[0]" label="От" placeholder="От" type="number" />
 
-                        <AppInput v-model="priceRange[1]" label="До" placeholder="До" type="number" />
+                        <AppInput v-model.number="priceRange[1]" label="До" placeholder="До" type="number" />
                     </div>
                 </div>
 
