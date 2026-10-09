@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useProductStore } from '../stores/products'
+import { useCartStore } from '../stores/cart'
 import ProductGrid from '../components/product/ProductGrid.vue'
 import AppButton from '../components/common/AppButton.vue'
 import AppInput from '../components/common/AppInput.vue'
 import type {Product, Category, SortOption, FilterState} from '../types/product'
 
 const productStore = useProductStore()
+const cartStore = useCartStore()
+
+const addToCart = (product: Product) => cartStore.addToCart({ product })
 const sortBy = ref('newest')
 const selectedCategories = ref<string[]>([])
 const priceRange = ref<[number, number]>([0,999999])
@@ -92,7 +96,7 @@ onMounted(async () =>{
                     </select>
                     <span>Кол-во: {{ filteredProducts.length }}</span>
                 </div>
-                <ProductGrid :products="filteredProducts" :loading="productStore.loading"/>
+                <ProductGrid :products="filteredProducts" :loading="productStore.loading" @add-to-cart="addToCart" />
             </main>
         </div>
 
