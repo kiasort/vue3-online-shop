@@ -50,7 +50,7 @@ onMounted(async () =>{
     <div class="catalog">
         <div class="catalog__header">
             <h1>Каталог</h1>
-            <p>Найдено: {{ productStore.products.length }} товаров</p>
+            <p>Найдено: {{ filteredProducts.length }} товаров</p>
         </div>
 
         <div class="catalog__content">
@@ -78,12 +78,16 @@ onMounted(async () =>{
                 <div class="filter-group">
                     <h3>Рейтинг</h3>
                     <select v-model.number="rating">
-                        <option :value="0">Любой рейтинг</option>\n                        <option :value="4.5">От 4,5 и выше</option>
+                        <option :value="0">Любой рейтинг</option> 
+                        <option :value="4.5">От 4,5 и выше</option>
                     </select>
 
                 </div>
 
-                <AppButton @click="applyFilters">Применить</AppButton>
+                <div class="filter-actions">
+                    <AppButton @click="applyFilters">Применить</AppButton>
+                    <AppButton variant="secondary" @click="resetFilters">Сбросить</AppButton>
+                </div>
             </aside>
 
             <main class="catalog__main">
@@ -146,6 +150,12 @@ onMounted(async () =>{
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .filter-group:last-of-type {
