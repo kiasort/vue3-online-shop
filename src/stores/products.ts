@@ -150,6 +150,8 @@ export const useProductStore = defineStore('products', () => {
     fetchProductById,
     setSearch,
     setCategoryFilter,
+    setPriceRange,
+    setRatingFilter,
     setSortBy,
     resetFilters,
   }
