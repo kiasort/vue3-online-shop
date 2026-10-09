@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import AppInput from '../components/common/AppInput.vue';
 import AppButton from '../components/common/AppButton.vue';
-import { reactive, ref, onMounted, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import {useCartStore} from '../stores/cart';
-import { useRouter } from 'vue-router'
 import axiosInstance from '../api/axiosInstance'
 
 const cartStore = useCartStore();
-
-const router = useRouter();
 
 
 
