@@ -28,7 +28,7 @@ const applyFilters = function(){
 const resetFilters = function (){
     productStore.resetFilters()
     selectedCategories.value = []
-    priceRange.value = [0, 99999]
+    priceRange.value = [0, 999999]
     rating.value = 0
     sortBy.value = 'newest'
 }
@@ -73,8 +73,8 @@ onMounted(async () =>{
 
                 <div class="filter-group">
                     <h3>Рейтинг</h3>
-                    <select v-model="rating">
-                        <option value = "4.5">От 4,5 и выше</option>
+                    <select v-model.number="rating">
+                        <option :value="0">Любой рейтинг</option>\n                        <option :value="4.5">От 4,5 и выше</option>
                     </select>
 
                 </div>
