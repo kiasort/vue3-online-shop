@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import {ref, onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCartStore } from '../stores/cart'
 import type { Product } from '../types/product'
 import ProductGrid from '../components/product/ProductGrid.vue'
 import AppButton from '../components/common/AppButton.vue'
 import { useProductStore } from '../stores/products'
 
 const productStore = useProductStore()
+const cartStore = useCartStore()
+const router = useRouter()
+
+const goToCatalog = () => router.push('/catalog')
+const addToCart = (product: Product) => cartStore.addToCart({ product })
 
 const featuredProducts = ref<Product[]>([])
 const newProducts = ref<Product[]>([])
@@ -28,7 +35,7 @@ onMounted(async () => {
             <div class= "home__container">
                 <h1>Добро пожаловать в TechShop</h1>
                 <p>Лучшие девайсы по выгодным ценам</p>
-                <AppButton variant="primary" size="lg">Перейти в каталог</AppButton>
+                <AppButton variant="primary" size="lg" @click="goToCatalog">Перейти в каталог</AppButton>
             </div>
 
         </section>
@@ -36,7 +43,7 @@ onMounted(async () => {
         <section class="home__featured">
             <div class="home__container">
                 <h2>Хиты продаж</h2>
-                <ProductGrid :products="featuredProducts" />
+                <ProductGrid :products="featuredProducts" @add-to-cart="addToCart" />
             </div>
 
         </section>
@@ -44,7 +51,7 @@ onMounted(async () => {
         <section class="home__new-arrivals">
             <div class="home__container">
                 <h2>Новинки</h2>
-                <ProductGrid :products="newProducts" />
+                <ProductGrid :products="newProducts" @add-to-cart="addToCart" />
             </div>
         </section>
     </div>

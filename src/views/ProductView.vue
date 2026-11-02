@@ -36,6 +36,12 @@ const addToCart = () => {
   }
 }
 
+const onImageError = (event: Event) => {
+  const image = event.target as HTMLImageElement
+  image.onerror = null
+  image.src = '/product-placeholder.svg'
+}
+
 const selectImage = (index: number) => {
   selectedImage.value = index
 }
@@ -58,7 +64,7 @@ onMounted(async () => {
 
         <div class="product-view__gallery">
           <div class="gallery__main-image">
-            <img :src="currentImage" :alt="product.name" />
+            <img :src="currentImage" :alt="product.name" @error="onImageError" />
           </div>
           <div class="gallery__thumbnails" v-if="product.images.length > 1">
             <button
@@ -68,7 +74,7 @@ onMounted(async () => {
               :class="{ 'gallery__thumb--active': index === selectedImage }"
               @click="selectImage(index)"
             >
-              <img :src="image" :alt="`${product.name} - ${index + 1}`" />
+              <img :src="image" :alt="`${product.name} - ${index + 1}`" @error="onImageError" />
             </button>
           </div>
         </div>
@@ -130,7 +136,7 @@ onMounted(async () => {
 
       <section class="product-view__related" v-if="relatedProducts.length > 0">
         <h2>Related Products</h2>
-        <ProductGrid :products="relatedProducts" :columns="4" />
+        <ProductGrid :products="relatedProducts" :columns="4" @add-to-cart="(p) => cartStore.addToCart({ product: p })" />
       </section>
     </div>
   </section>

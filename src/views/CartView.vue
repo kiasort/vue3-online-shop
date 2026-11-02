@@ -32,7 +32,13 @@ onMounted(() => {
 
     <div class="main-content" v-if="cartStore.items.length > 0">
       <div class="main-content__list">
-        <CartItem v-for="cart in cartStore.items" :key="cart.id" :item="cart" />
+        <CartItem
+            v-for="cart in cartStore.items"
+            :key="cart.id ?? cart.product.id"
+            :item="cart"
+            @update-quantity="cartStore.updateQuantity"
+            @remove-item="cartStore.removeFromCart"
+          />
 
       </div>
 

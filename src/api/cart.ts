@@ -1,55 +1,45 @@
-import axiosInstance from "./axiosInstance";
-import type { CartItem } from "@/types";
+import axiosInstance from './axiosInstance'
+import type { CartItem } from '@/types'
 
-export async function getCart(): Promise<CartItem[]>{
-    try{
-        const response = await axiosInstance.get('/cart')
-        return response.data
-    }catch(e){
-        console.error(e)
-        throw e
+const sessionStorageKey = 'techshop-cart-session'
+
+function getSessionId(): string {
+    let sessionId = localStorage.getItem(sessionStorageKey)
+    if (!sessionId) {
+        sessionId = crypto.randomUUID()
+        localStorage.setItem(sessionStorageKey, sessionId)
     }
-    
+    return sessionId
 }
 
-export async function addToCartApi(item: CartItem): Promise<CartItem>{
-    try{
-        const response = await axiosInstance.post('/cart', item)
-        return response.data
-    }catch(e){
-        console.error(e)
-        throw e
+function sessionConfig() {
+    return {
+        headers: {
+            'x-cart-session-id': getSessionId(),
+        },
     }
 }
 
-export async function updateCartItem(id: string, item: CartItem): Promise<CartItem>{
-    try{
-        const response = await axiosInstance.put(`/cart/${id}`, item)
-        return response.data
-    }catch(e){
-        console.error(e)
-        throw e
-    }
+export async function getCart(): Promise<CartItem[]> {
+    const response = await axiosInstance.get('/cart', sessionConfig())
+    return response.data
+}
+
+export async function addToCartApi(item: CartItem): Promise<CartItem> {
+    const response = await axiosInstance.post('/cart', item, sessionConfig())
+    return response.data
+}
+
+export async function updateCartItem(id: string, item: CartItem): Promise<CartItem> {
+    const response = await axiosInstance.put(`/cart/${id}`, item, sessionConfig())
+    return response.data
 }
 
 export async function removeFromCartApi(id: string): Promise<void> {
-    try{
-        const response = await axiosInstance.delete(`/cart/${id}`)
-        return response.data
-    }catch(e){
-        console.error(e)
-        throw e
-    }
+    await axiosInstance.delete(`/cart/${id}`, sessionConfig())
 }
 
 export async function clearCartApi(): Promise<void> {
-    try{
-        const currentCart = await getCart()
-        for(const item of currentCart){
-            await removeFromCartApi(item.id!)
-        }
-    }catch(e){
-        console.error(e)
-        throw e
-    }
+    const currentCart = await getCart()
+    await Promise.all(currentCart.map(item => removeFromCartApi(item.id!)))
 }

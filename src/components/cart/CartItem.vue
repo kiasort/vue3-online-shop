@@ -10,9 +10,15 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-    'update-quantity': [id: string | undefined, quantity: number]
-    'remove-item': [id: string | undefined]
+    'update-quantity': [id: string, quantity: number]
+    'remove-item': [id: string]
 }>()
+
+const onImageError = (event: Event) => {
+    const image = event.target as HTMLImageElement
+    image.onerror = null
+    image.src = '/product-placeholder.svg'
+}
 
 const oldPrice = computed(()=>{
     return props.item.product.compareAtPrice ?? null
@@ -22,7 +28,7 @@ const oldPrice = computed(()=>{
 <template>
   <div class="cart-item">
     <div class="cart-item__image">
-        <img :src="props.item.product.images[0]" alt="Product Image" />
+        <img :src="props.item.product.images[0]" :alt="props.item.product.name" @error="onImageError" />
     </div>
     <div class="cart-item__details">
         <h3 class="cart-item__name">{{ props.item.product.name }}</h3>
@@ -37,7 +43,7 @@ const oldPrice = computed(()=>{
         <AppButton
             variant="secondary"
             size="sm"
-            @click="emit('update-quantity', props.item.id, props.item.quantity - 1)"
+            @click="emit('update-quantity', props.item.product.id, props.item.quantity - 1)"
             :disabled="props.item.quantity <= 1"
         >
             -
@@ -46,14 +52,14 @@ const oldPrice = computed(()=>{
         <AppButton
             variant="secondary"
             size="sm"
-            @click="emit('update-quantity', props.item.id, props.item.quantity + 1)"
+            @click="emit('update-quantity', props.item.product.id, props.item.quantity + 1)"
         >
             +
         </AppButton>
         <AppButton
             variant="danger"
             size="sm"
-            @click="emit('remove-item', props.item.id)"
+            @click="emit('remove-item', props.item.product.id)"
         >
             Удалить
         </AppButton>

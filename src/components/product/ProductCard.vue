@@ -13,6 +13,12 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 })
 
+const onImageError = (event: Event) => {
+  const image = event.target as HTMLImageElement
+  image.onerror = null
+  image.src = '/product-placeholder.svg'
+}
+
 const emit = defineEmits<{
   'add-to-cart': [product: Product]
 }>()
@@ -24,6 +30,7 @@ const emit = defineEmits<{
       <img 
       :src="props.product.images[0]" 
       :alt="props.product.name" v-if="!props.loading" 
+      @error="onImageError"
       />
       <AppSpinner 
       v-else 
